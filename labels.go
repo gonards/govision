@@ -10,13 +10,30 @@ import (
 	vision "cloud.google.com/go/vision/apiv1"
 )
 
-func getLabels(path string) map[string][]string {
+// GetLabels return labels from path
+func GetLabels(path string) map[string][]string {
 	result := make(map[string][]string)
 	ctx := context.Background()
 
 	client := initClient(ctx)
-	filename := extractFileName(path)
-	result[filename] = callVisionAPI(ctx, path, client)
+
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			log.Fatalf("Prevent panic by handling failure accessing a path %q: %v\n", path, err)
+			return err
+		}
+
+		if isDir := isPathDir(path); isDir == false {
+			filename := extractFileName(path)
+			result[filename] = callVisionAPI(ctx, path, client)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Fatalf("error walking the path %q: %v\n", path, err)
+	}
 
 	return result
 }

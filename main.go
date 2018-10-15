@@ -2,12 +2,15 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 )
 
 func main() {
-
-	results := getLabels("./test/tete.JPG")
+	pathFlag := flag.String("p", "./", "Image to process path")
+	flag.Parse()
+	fmt.Println("Image processing ...")
+	results := GetLabels(*pathFlag)
 	for name, result := range results {
 		fmt.Println(name)
 		fmt.Println("-------")
